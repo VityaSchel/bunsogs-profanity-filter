@@ -1,0 +1,14 @@
+{
+  "name": "bunsogs-profanity-filter",
+  "module": "src/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
