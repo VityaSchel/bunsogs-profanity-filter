@@ -24,7 +24,8 @@ self.addEventListener('message', async event => {
   switch (event.data.type) {
     case 'onBeforePost':
       try {
-        postMessage({ ok: true, action: await shouldPost(event.data.payload.message) ? 'send' : 'reject', ref: event.data.ref })
+        const shouldPostBool = await shouldPost(event.data.payload.message)
+        postMessage({ ok: true, action: shouldPostBool ? 'send' : 'reject', ref: event.data.ref })
       } catch(e) {
         console.error(e)
         postMessage({ ok: false, ref: event.data.ref, error: e instanceof Error && e.message })

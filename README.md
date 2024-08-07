@@ -10,6 +10,8 @@ Profanity filter plugin for Session Open Group Server implementation [Bunsogs](h
 4. Go into this plugin's directory, run `bun install` and optionally configure plugin
 5. Restart your bunsogs
 
+Simple mode is 100x less efficient than GPT moderation mode and will give you a lot of false negatives and a bunch of false positives. GPT is usually good at 80% of cases and pretty fast.
+
 ## Configuration
 
 Profanity filter plugins supports two modes:
