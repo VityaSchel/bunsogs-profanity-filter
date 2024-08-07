@@ -12,6 +12,8 @@ Profanity filter plugin for Session Open Group Server implementation [Bunsogs](h
 
 Simple mode is 100x less efficient than GPT moderation mode and will give you a lot of false negatives and a bunch of false positives. GPT is usually good at 80% of cases and pretty fast.
 
+AI mode on the other hand only moderates the content, not words. Most likely it will allow profanity and curse words, but won't allow certain topics.
+
 ## Configuration
 
 Profanity filter plugins supports two modes:
