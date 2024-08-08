@@ -53,7 +53,7 @@ self.addEventListener('message', async event => {
 export async function shouldPost(message: { text: string }): Promise<boolean> {
   let rejected: boolean = true
   if(config.simple === true) {
-    rejected = !message.text.split(' ').some(word => profanityWords.has(word.toLowerCase()))
+    rejected = message.text.split(' ').some(word => profanityWords.has(word.toLowerCase()))
     if (rejected) return false
   }
   if (config.gpt === true) {
