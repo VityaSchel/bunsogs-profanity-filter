@@ -51,7 +51,7 @@ self.addEventListener('message', async event => {
 })
 
 export async function shouldPost(message: { text: string }): Promise<boolean> {
-  let rejected: boolean = true
+  let rejected: boolean = false
   if(config.simple === true) {
     rejected = message.text.split(' ').some(word => profanityWords.has(word.toLowerCase()))
     if (rejected) return false
@@ -82,9 +82,9 @@ export async function shouldPost(message: { text: string }): Promise<boolean> {
     }
     const result = response.data.results[0]
     if(Array.isArray(config.reject_categories)) {
-      rejected = !config.reject_categories.some(category => result.categories[category] === true)
+      rejected = config.reject_categories.some(category => result.categories[category] === true)
     } else {
-      rejected = !result.flagged
+      rejected = result.flagged
     }
   }
   return !rejected
