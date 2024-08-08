@@ -1,3 +1,4 @@
 {
-  "mode": "simple"
+  "simple": true,
+  "check_mods": false
 }

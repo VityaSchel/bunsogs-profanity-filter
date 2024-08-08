@@ -7,22 +7,34 @@ const profanityWords = new Set(Object.values(profanityList).flatMap(l => Array.i
 
 const configSerialized = await fs.readFile(path.join(__dirname, '../config.json'), 'utf-8')
 const config = z.object({
-  mode: z.enum(['simple', 'gpt']),
+  simple: z.boolean().optional(),
+  gpt: z.boolean().optional(),
+  check_mods: z.boolean().optional(),
   openai_api_key: z.string().optional(),
   reject_categories: z.array(z.string()).optional()
 }).parse(JSON.parse(configSerialized))
 
-if(config.mode === 'gpt' && !config.openai_api_key) {
-  throw new Error('Error while reading config.json: openai_api_key is required when mode is gpt')
+if(config.gpt === true && !config.openai_api_key) {
+  throw new Error('Error while reading config.json: openai_api_key is required when gpt mode is enabled')
 }
 
-if (config.mode === 'simple' && config.reject_categories) {
-  throw new Error('Error while reading config.json: reject_categories can only be used when mode is gpt')
+if (config.simple === true && config.reject_categories) {
+  throw new Error('Error while reading config.json: reject_categories can only be used when gpt mode is enabled')
+}
+
+if(config.simple !== true && config.gpt !== true) {
+  throw new Error('Error while reading config.json: at least one of simple or gpt must be enabled')
 }
 
 self.addEventListener('message', async event => {
   switch (event.data.type) {
-    case 'onBeforePost':
+    case 'onBeforePost': {
+      const author = event.data.payload.message.author
+      if (author.admin || author.moderator || author.roomPermissions.admin || author.roomPermissions.moderator) {
+        if(config.check_mods === false) {
+          postMessage({ ok: true, action: 'send', ref: event.data.ref })
+        }
+      }
       try {
         const shouldPostBool = await shouldPost(event.data.payload.message)
         postMessage({ ok: true, action: shouldPostBool ? 'send' : 'reject', ref: event.data.ref })
@@ -31,6 +43,7 @@ self.addEventListener('message', async event => {
         postMessage({ ok: false, ref: event.data.ref, error: e instanceof Error && e.message })
       }
       break
+    }
     default:
       postMessage({ ok: false, ref: event.data.ref })
       break
@@ -38,9 +51,12 @@ self.addEventListener('message', async event => {
 })
 
 export async function shouldPost(message: { text: string }): Promise<boolean> {
-  if(config.mode === 'simple') {
-    return !message.text.split(' ').some(word => profanityWords.has(word.toLowerCase()))
-  } else {
+  let rejected: boolean = true
+  if(config.simple === true) {
+    rejected = !message.text.split(' ').some(word => profanityWords.has(word.toLowerCase()))
+    if (rejected) return false
+  }
+  if (config.gpt === true) {
     const request = await fetch('https://api.openai.com/v1/moderations', {
       method: 'POST',
       headers: {
@@ -66,9 +82,10 @@ export async function shouldPost(message: { text: string }): Promise<boolean> {
     }
     const result = response.data.results[0]
     if(Array.isArray(config.reject_categories)) {
-      return !config.reject_categories.some(category => result.categories[category] === true)
+      rejected = !config.reject_categories.some(category => result.categories[category] === true)
     } else {
-      return !result.flagged
+      rejected = !result.flagged
     }
   }
+  return !rejected
 }

@@ -10,34 +10,39 @@ Profanity filter plugin for Session Open Group Server implementation [Bunsogs](h
 4. Go into this plugin's directory, run `bun install` and optionally configure plugin
 5. Restart your bunsogs
 
-Simple mode is 100x less efficient than GPT moderation mode and will give you a lot of false negatives and a bunch of false positives. GPT is usually good at 80% of cases and pretty fast.
+Simple mode is useful to detect profanity and bad words. It won't filter out mangled words.
 
-AI mode on the other hand only moderates the content, not words. Most likely it will allow profanity and curse words, but won't allow certain topics.
+GPT mode on the other hand only moderates the content, not words. Most likely it will allow profanity and curse words, but won't allow certain topics.
 
 ## Configuration
 
-Profanity filter plugins supports two modes:
+bunsogs-profanity-filter plugins supports two modes which can be enabled simultaniously:
 
-1. Simple common words and phrases detection (default)
-    The plugin will use embedded dictionary in supported languages and reject any messages with found words.
-    To use this, set "mode" in config.json to "simple"
-2. AI mode with GPT moderation endpoint
-    The plugin will send request to GPT moderation endpoint for each message and reject. Please be aware that this mode **sends all new incoming messages to OpenAI** API which may pose a security risk for you. First mode works 100% locally.
-    To use this, follow the guide below.
+- Simple common words and abbrevations detection (enabled by default)
+  The plugin will use embedded dictionary in supported languages and reject any messages with found words.
+  To use this, set `"simple"` in config.json to `true` 
+- GPT mode with GPT moderation endpoint
+  The plugin will send request to GPT moderation endpoint for each message and reject if GPT flagged input. Please be aware that this mode **sends all new incoming messages to OpenAI** API which may pose a security risk for you. Simple mode works 100% locally.
+  To use this, follow the guide below.
 
-## How to setup AI mode?
+By default bunsogs-profanity-filter plugin will only check messages from users who don't have admin or moderator permissions neither globally nor in the current room. You can configure this via `"check_mods"` property, by setting it to true in config.json, the plugin will check messages from everybody.
+
+Any changes in configuration require restarting bunsogs instance.
+
+## How to setup GPT mode?
 
 1. Go to https://platform.openai.com/api-keys
-2. Create new secret key with any name, for example `"my-bunsogs-profanity-filter"`
-3. Copy the key and paste it to the config.json's "openai_api_key" property
-4. Set "mode" in config.json to "gpt"
+2. Create new secret key with any name, it does not matter and won't be visible to anyone
+3. Copy the secret key and paste it to the config.json's "openai_api_key" property
+4. Set `"gpt"` in config.json to `true`
 5. Restart your bunsogs
 
 This will reject message if "flagged" property is set to true by GPT moderation API. Example config:
 
 ```json
 {
-  "mode": "gpt",
+  "simple": true,
+  "gpt": true,
   "openai_api_key": "sk-proj-uCzxhufCtrTNXHVYwsyUrLsnEGAMdbuHb0GmjhXqh_fvWHwEIg9RBLtHpdvTOjBxJrC9EJmnYoZ5DNbsXdGY_zSYSsEwo66urAAF1Xcg_YZbenwT2DDqb7DwN1Wi"
 }
 ```
@@ -56,11 +61,12 @@ Optionally, you can configure to reject message only if one of categories is set
 - `harassment/threatening`
 - `violence`
 
-For example, if you want to allow sexual content, but reject messages about sexually assulting minors and all other categories, here is your config:
+For example, if you want to allow sexual content, but reject messages about sex with minors and all other categories, here is your config:
 
 ```json
 {
-  "mode": "gpt",
+  "simple": true,
+  "gpt": true,
   "openai_api_key": "sk-proj-uCzxhufCtrTNXHVYwsyUrLsnEGAMdbuHb0GmjhXqh_fvWHwEIg9RBLtHpdvTOjBxJrC9EJmnYoZ5DNbsXdGY_zSYSsEwo66urAAF1Xcg_YZbenwT2DDqb7DwN1Wi",
   "reject_categories": [
     "hate",
