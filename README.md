@@ -4,6 +4,8 @@ Profanity filter plugin for Session Open Group Server implementation [Bunsogs](h
 
 ## Installation 
 
+Prerequisite: Install Bun for this plugin. Go to [bun.sh](https://bun.sh), run one line script in your terminal and test it with `bun -v` If it shows version number, you've just installed the best js runtime and ready to install this plugin.
+
 1. Go to your bunsogs directory
 2. Open plugins subdirectory
 3. Clone this repository there or download as zip and unpack to plugins directory
