@@ -27,26 +27,28 @@ if(config.simple !== true && config.gpt !== true) {
 }
 
 self.addEventListener('message', async event => {
-  switch (event.data.type) {
-    case 'onBeforePost': {
-      const author = event.data.payload.message.author
-      if (author.admin || author.moderator || author.roomPermissions.admin || author.roomPermissions.moderator) {
-        if(config.check_mods === false) {
-          postMessage({ ok: true, action: 'send', ref: event.data.ref })
+  if (event.data.ref) {
+    switch (event.data.type) {
+      case 'onBeforePost': {
+        const author = event.data.payload.message.author
+        if (author.admin || author.moderator || author.roomPermissions.admin || author.roomPermissions.moderator) {
+          if(config.check_mods === false) {
+            postMessage({ ok: true, action: 'send', ref: event.data.ref })
+          }
         }
+        try {
+          const shouldPostBool = await shouldPost(event.data.payload.message)
+          postMessage({ ok: true, action: shouldPostBool ? 'send' : 'reject', ref: event.data.ref })
+        } catch(e) {
+          console.error(e)
+          postMessage({ ok: false, ref: event.data.ref, error: e instanceof Error && e.message })
+        }
+        break
       }
-      try {
-        const shouldPostBool = await shouldPost(event.data.payload.message)
-        postMessage({ ok: true, action: shouldPostBool ? 'send' : 'reject', ref: event.data.ref })
-      } catch(e) {
-        console.error(e)
-        postMessage({ ok: false, ref: event.data.ref, error: e instanceof Error && e.message })
-      }
-      break
+      default:
+        postMessage({ ok: false, ref: event.data.ref })
+        break
     }
-    default:
-      postMessage({ ok: false, ref: event.data.ref })
-      break
   }
 })
 
