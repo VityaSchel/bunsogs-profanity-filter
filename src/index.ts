@@ -11,7 +11,8 @@ const config = z.object({
   gpt: z.boolean().optional(),
   check_mods: z.boolean().optional(),
   openai_api_key: z.string().optional(),
-  reject_categories: z.array(z.string()).optional()
+  reject_categories: z.array(z.string()).optional(),
+  action: z.enum(['drop', 'reject']).default('drop').optional()
 }).parse(JSON.parse(configSerialized))
 
 if(config.gpt === true && !config.openai_api_key) {
@@ -38,7 +39,7 @@ self.addEventListener('message', async event => {
         }
         try {
           const shouldPostBool = await shouldPost(event.data.payload.message)
-          postMessage({ ok: true, action: shouldPostBool ? 'send' : 'reject', ref: event.data.ref })
+          postMessage({ ok: true, action: shouldPostBool ? 'send' : config.action, ref: event.data.ref })
         } catch(e) {
           console.error(e)
           postMessage({ ok: false, ref: event.data.ref, error: e instanceof Error && e.message })
