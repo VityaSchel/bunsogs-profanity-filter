@@ -11,7 +11,7 @@ The following 54 languages are supported:
 - Dansk (Danish)
 - Deutsch (German)
 - Ελληνικά (Greek)
-- English (English) \[curated\] + [slrslr's list](https://github.com/slrslr/session-sogs/blob/main/profanity-block-list.txt)
+- English (English) \[curated\]
 - Español (Spanish)
 - Eesti (Estonian)
 - Euskara (Basque)
