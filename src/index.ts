@@ -53,12 +53,16 @@ self.addEventListener('message', async event => {
   }
 })
 
-const nonLettersCharsRegex = /[^a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0370-\u03FF\u0400-\u04FF\u0530-\u058F\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F\u0E00-\u0E7F\u0E80-\u0EFF\u1000-\u109F\u1100-\u11FF\u1200-\u137F\u13A0-\u13FF\u16A0-\u16FF\u1E00-\u1EFF\u2C00-\u2C5F\u2C60-\u2C7F\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\uA960-\uA97F\uAC00-\uD7AF\uFF00-\uFFEF\uFB50-\uFDFF\uFE70-\uFEFF\-'0-9]/g
+const nonLettersCharsRegex = /[^a-zA-Z\u00C0-\u024F\u1E00-\u1EFF\u0370-\u03FF\u0400-\u04FF\u0530-\u058F\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u0900-\u097F\u0980-\u09FF\u0A00-\u0A7F\u0A80-\u0AFF\u0B00-\u0B7F\u0C00-\u0C7F\u0C80-\u0CFF\u0D00-\u0D7F\u0E00-\u0E7F\u0E80-\u0EFF\u1000-\u109F\u1100-\u11FF\u1200-\u137F\u13A0-\u13FF\u16A0-\u16FF\u1E00-\u1EFF\u2C00-\u2C5F\u2C60-\u2C7F\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\uA960-\uA97F\uAC00-\uD7AF\uFF00-\uFFEF\uFB50-\uFDFF\uFE70-\uFEFF\-'0-9 ]/g
 
 export async function shouldPost(message: { text: string }): Promise<boolean> {
   let rejected: boolean = false
   if(config.simple === true) {
-    rejected = message.text.toLocaleLowerCase().replaceAll(nonLettersCharsRegex, '').split(' ')
+    rejected = message.text.toLocaleLowerCase()
+      .replaceAll('\n', ' ')
+      .replaceAll(nonLettersCharsRegex, '')
+      .split(' ')
+      .filter(Boolean)
       .some(word => profanityWords.has(word))
     if (rejected) return false
   }
